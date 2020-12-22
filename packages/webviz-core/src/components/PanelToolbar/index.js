@@ -68,36 +68,30 @@ function StandardMenuItems({ tabId }: { tabId?: string }) {
     mosaicWindowActions,
   ]);
 
-  const close = useCallback(
-    () => {
-      const { logger, eventNames, eventTags } = getGlobalHooks().getEventLogger();
-      logger({ name: eventNames.PANEL_REMOVE, tags: { [eventTags.PANEL_TYPE]: getPanelType() } });
-      actions.closePanel({ tabId, root: mosaicActions.getRoot(), path: mosaicWindowActions.getPath() });
-    },
-    [actions, getPanelType, mosaicActions, mosaicWindowActions, tabId]
-  );
+  const close = useCallback(() => {
+    const { logger, eventNames, eventTags } = getGlobalHooks().getEventLogger();
+    logger({ name: eventNames.PANEL_REMOVE, tags: { [eventTags.PANEL_TYPE]: getPanelType() } });
+    actions.closePanel({ tabId, root: mosaicActions.getRoot(), path: mosaicWindowActions.getPath() });
+  }, [actions, getPanelType, mosaicActions, mosaicWindowActions, tabId]);
 
-  const split = useCallback(
-    (store, id: ?string, direction: "row" | "column") => {
-      const type = getPanelType();
-      if (!id || !type) {
-        throw new Error("Trying to split unknown panel!");
-      }
-      const { logger, eventNames, eventTags } = getGlobalHooks().getEventLogger();
-      logger({ name: eventNames.PANEL_SPLIT, tags: { [eventTags.PANEL_TYPE]: getPanelType() } });
+  const split = useCallback((store, id: ?string, direction: "row" | "column") => {
+    const type = getPanelType();
+    if (!id || !type) {
+      throw new Error("Trying to split unknown panel!");
+    }
+    const { logger, eventNames, eventTags } = getGlobalHooks().getEventLogger();
+    logger({ name: eventNames.PANEL_SPLIT, tags: { [eventTags.PANEL_TYPE]: getPanelType() } });
 
-      const config = savedProps[id];
-      actions.splitPanel({
-        id,
-        tabId,
-        direction,
-        root: mosaicActions.getRoot(),
-        path: mosaicWindowActions.getPath(),
-        config,
-      });
-    },
-    [actions, getPanelType, mosaicActions, mosaicWindowActions, savedProps, tabId]
-  );
+    const config = savedProps[id];
+    actions.splitPanel({
+      id,
+      tabId,
+      direction,
+      root: mosaicActions.getRoot(),
+      path: mosaicWindowActions.getPath(),
+      config,
+    });
+  }, [actions, getPanelType, mosaicActions, mosaicWindowActions, savedProps, tabId]);
 
   const swap = useCallback(
     (id: ?string) => ({ type, config, relatedConfigs }: PanelSelection) => {
@@ -116,23 +110,20 @@ function StandardMenuItems({ tabId }: { tabId?: string }) {
     [actions, mosaicActions, mosaicWindowActions, tabId]
   );
 
-  const onImportClick = useCallback(
-    (store, id) => {
-      if (!id) {
-        return;
-      }
-      const panelConfigById = store.getState().persistedState.panels.savedProps;
-      const modal = renderToBody(
-        <ShareJsonModal
-          onRequestClose={() => modal.remove()}
-          value={panelConfigById[id] || {}}
-          onChange={(config) => actions.savePanelConfigs({ configs: [{ id, config, override: true }] })}
-          noun="panel configuration"
-        />
-      );
-    },
-    [actions]
-  );
+  const onImportClick = useCallback((store, id) => {
+    if (!id) {
+      return;
+    }
+    const panelConfigById = store.getState().persistedState.panels.savedProps;
+    const modal = renderToBody(
+      <ShareJsonModal
+        onRequestClose={() => modal.remove()}
+        value={panelConfigById[id] || {}}
+        onChange={(config) => actions.savePanelConfigs({ configs: [{ id, config, override: true }] })}
+        noun="panel configuration"
+      />
+    );
+  }, [actions]);
 
   const type = getPanelType();
   if (!type) {

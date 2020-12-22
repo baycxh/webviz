@@ -206,21 +206,25 @@ function PanelList(props: Props) {
 
   // Update panel layout in Redux when a panel menu item is dropped;
   // actual operations to change layout supplied by react-mosaic-component
-  const onPanelMenuItemDrop = React.useCallback(
-    ({ config, relatedConfigs, type, position, path, tabId }: DropDescription) => {
-      dispatch(
-        dropPanel({
-          newPanelType: type,
-          destinationPath: path,
-          position,
-          tabId,
-          config,
-          relatedConfigs,
-        })
-      );
-    },
-    [dispatch]
-  );
+  const onPanelMenuItemDrop = React.useCallback(({
+    config,
+    relatedConfigs,
+    type,
+    position,
+    path,
+    tabId,
+  }: DropDescription) => {
+    dispatch(
+      dropPanel({
+        newPanelType: type,
+        destinationPath: path,
+        position,
+        tabId,
+        config,
+        relatedConfigs,
+      })
+    );
+  }, [dispatch]);
 
   const handleSearchChange = React.useCallback((e: SyntheticInputEvent<HTMLInputElement>) => {
     // TODO(Audrey): press enter to select the first item, allow using arrow key to go up and down

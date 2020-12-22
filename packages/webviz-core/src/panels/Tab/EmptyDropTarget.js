@@ -72,14 +72,11 @@ export const EmptyDropTarget = ({ mosaicId, tabId }: Props) => {
     }),
   });
 
-  const onPanelSelect = useCallback(
-    ({ type, config, relatedConfigs }: PanelSelection) => {
-      dispatch(addPanel({ tabId, type, layout: null, config, relatedConfigs }));
-      const { logger, eventNames, eventTags } = getGlobalHooks().getEventLogger();
-      logger({ name: eventNames.PANEL_ADD, tags: { [eventTags.PANEL_TYPE]: type } });
-    },
-    [dispatch, tabId]
-  );
+  const onPanelSelect = useCallback(({ type, config, relatedConfigs }: PanelSelection) => {
+    dispatch(addPanel({ tabId, type, layout: null, config, relatedConfigs }));
+    const { logger, eventNames, eventTags } = getGlobalHooks().getEventLogger();
+    logger({ name: eventNames.PANEL_ADD, tags: { [eventTags.PANEL_TYPE]: type } });
+  }, [dispatch, tabId]);
 
   return (
     <SDropTarget ref={drop} isOver={isOver} data-test="empty-drop-target">

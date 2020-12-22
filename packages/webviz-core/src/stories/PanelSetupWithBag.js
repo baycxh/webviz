@@ -49,33 +49,30 @@ export default function PanelSetupWithBag({
   onFirstMount,
 }: Props) {
   const [fixture, setFixture] = useState();
-  useEffect(
-    () => {
-      (async () => {
-        const player = new NodePlayer(new StoryPlayer([bag, bag2].filter(Boolean)));
-        player.setSubscriptions([
-          ...(subscriptions || []).map((topic) => ({ topic, format: "parsedMessages" })),
-          ...(bobjectSubscriptions || []).map((topic) => ({ topic, format: "bobjects" })),
-        ]);
+  useEffect(() => {
+    (async () => {
+      const player = new NodePlayer(new StoryPlayer([bag, bag2].filter(Boolean)));
+      player.setSubscriptions([
+        ...(subscriptions || []).map((topic) => ({ topic, format: "parsedMessages" })),
+        ...(bobjectSubscriptions || []).map((topic) => ({ topic, format: "bobjects" })),
+      ]);
 
-        player.setListener(({ activeData }: PlayerState) => {
-          if (!activeData) {
-            return Promise.resolve();
-          }
-          const { messages, bobjects, topics } = activeData;
-          const frame = groupBy([...messages, ...bobjects], "topic");
-          setFixture(
-            getMergedFixture({
-              frame,
-              topics,
-            })
-          );
+      player.setListener(({ activeData }: PlayerState) => {
+        if (!activeData) {
           return Promise.resolve();
-        });
-      })();
-    },
-    [bag, bag2, bobjectSubscriptions, getMergedFixture, subscriptions]
-  );
+        }
+        const { messages, bobjects, topics } = activeData;
+        const frame = groupBy([...messages, ...bobjects], "topic");
+        setFixture(
+          getMergedFixture({
+            frame,
+            topics,
+          })
+        );
+        return Promise.resolve();
+      });
+    })();
+  }, [bag, bag2, bobjectSubscriptions, getMergedFixture, subscriptions]);
 
   return fixture ? (
     <PanelSetup fixture={fixture} onMount={onMount} onFirstMount={onFirstMount}>

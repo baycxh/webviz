@@ -259,48 +259,36 @@ function ImageView(props: Props) {
     ...customMarkerTopicOptions,
     ...enabledMarkerTopics,
   ]).sort();
-  const onToggleMarkerName = useCallback(
-    (markerTopic: string) => {
-      saveConfig({ enabledMarkerTopics: toggle(enabledMarkerTopics, markerTopic) });
-    },
-    [saveConfig, enabledMarkerTopics]
-  );
+  const onToggleMarkerName = useCallback((markerTopic: string) => {
+    saveConfig({ enabledMarkerTopics: toggle(enabledMarkerTopics, markerTopic) });
+  }, [saveConfig, enabledMarkerTopics]);
 
-  const onChangeCameraTopic = useCallback(
-    (newCameraTopic: string) => {
-      const newAvailableMarkerTopics = getMarkerOptions(
-        newCameraTopic,
-        topics,
-        allCameraNamespaces,
-        imageMarkerDatatypes
-      );
+  const onChangeCameraTopic = useCallback((newCameraTopic: string) => {
+    const newAvailableMarkerTopics = getMarkerOptions(
+      newCameraTopic,
+      topics,
+      allCameraNamespaces,
+      imageMarkerDatatypes
+    );
 
-      const newEnabledMarkerTopics = getRelatedMarkerTopics(enabledMarkerTopics, newAvailableMarkerTopics);
-      saveConfig({
-        cameraTopic: newCameraTopic,
-        transformMarkers: getGlobalHooks()
-          .perPanelHooks()
-          .ImageView.canTransformMarkersByTopic(newCameraTopic),
+    const newEnabledMarkerTopics = getRelatedMarkerTopics(enabledMarkerTopics, newAvailableMarkerTopics);
+    saveConfig({
+      cameraTopic: newCameraTopic,
+      transformMarkers: getGlobalHooks()
+        .perPanelHooks()
+        .ImageView.canTransformMarkersByTopic(newCameraTopic),
 
-        enabledMarkerTopics: newEnabledMarkerTopics,
-      });
-    },
-    [topics, allCameraNamespaces, imageMarkerDatatypes, enabledMarkerTopics, saveConfig]
-  );
+      enabledMarkerTopics: newEnabledMarkerTopics,
+    });
+  }, [topics, allCameraNamespaces, imageMarkerDatatypes, enabledMarkerTopics, saveConfig]);
 
-  const onChangeScale = useCallback(
-    (newScale: number) => {
-      saveConfig({ scale: newScale });
-    },
-    [saveConfig]
-  );
+  const onChangeScale = useCallback((newScale: number) => {
+    saveConfig({ scale: newScale });
+  }, [saveConfig]);
 
-  const onToggleSynchronize = useCallback(
-    () => {
-      saveConfig({ synchronize: !config.synchronize });
-    },
-    [saveConfig, config.synchronize]
-  );
+  const onToggleSynchronize = useCallback(() => {
+    saveConfig({ synchronize: !config.synchronize });
+  }, [saveConfig, config.synchronize]);
 
   const renderImageTopicDropdown = () => {
     const cameraNamespace = getCameraNamespace(cameraTopic);
@@ -455,29 +443,23 @@ function ImageView(props: Props) {
     [enabledMarkerTopics, messagesByTopic, shouldSynchronize, synchronizedMessages]
   );
   // Timestamps are displayed for informational purposes in the markers menu
-  const renderedMarkerTimestamps = useMemo(
-    () => {
-      const stamps = {};
-      for (const { topic, message } of markersToRender) {
-        // In some cases, a user may have subscribed to a topic that does not include a header stamp.
-        stamps[topic] = message?.header?.stamp ? formatTimeRaw(message.header.stamp) : "[ not available ]";
-      }
-      return stamps;
-    },
-    [markersToRender]
-  );
+  const renderedMarkerTimestamps = useMemo(() => {
+    const stamps = {};
+    for (const { topic, message } of markersToRender) {
+      // In some cases, a user may have subscribed to a topic that does not include a header stamp.
+      stamps[topic] = message?.header?.stamp ? formatTimeRaw(message.header.stamp) : "[ not available ]";
+    }
+    return stamps;
+  }, [markersToRender]);
 
   const pauseFrame = useMessagePipeline(useCallback((messagePipeline) => messagePipeline.pauseFrame, []));
-  const onStartRenderImage = useCallback(
-    () => {
-      const resumeFrame = pauseFrame("ImageView");
-      const onFinishRenderImage = () => {
-        resumeFrame();
-      };
-      return onFinishRenderImage;
-    },
-    [pauseFrame]
-  );
+  const onStartRenderImage = useCallback(() => {
+    const resumeFrame = pauseFrame("ImageView");
+    const onFinishRenderImage = () => {
+      resumeFrame();
+    };
+    return onFinishRenderImage;
+  }, [pauseFrame]);
 
   const rawMarkerData = {
     markers: markersToRender,

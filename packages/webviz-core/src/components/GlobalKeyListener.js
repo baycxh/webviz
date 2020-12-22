@@ -38,45 +38,42 @@ export default function GlobalKeyListener({ openSaveLayoutModal, openLayoutModal
   const dispatch = useDispatch();
   const actions = useMemo(() => bindActionCreators({ redoLayoutChange, undoLayoutChange }, dispatch), [dispatch]);
 
-  const keyDownHandler: (KeyboardEvent) => void = useCallback(
-    (e) => {
-      const lowercaseEventKey = e.key.toLowerCase();
-      if (e.key === "?") {
-        history.push(`/help${window.location.search}`);
-      }
+  const keyDownHandler: (KeyboardEvent) => void = useCallback((e) => {
+    const lowercaseEventKey = e.key.toLowerCase();
+    if (e.key === "?") {
+      history.push(`/help${window.location.search}`);
+    }
 
-      if (!(e.ctrlKey || e.metaKey)) {
+    if (!(e.ctrlKey || e.metaKey)) {
+      return;
+    }
+    if (lowercaseEventKey === "z") {
+      // Don't use ctrl-Z for layout history actions inside the Monaco Editor. It isn't
+      // controlled, and changes inside it don't result in updates to the Redux state. We could
+      // consider making the editor controlled, with a separate "unsaved state".
+      if (inNativeUndoRedoElement(e.target)) {
         return;
       }
-      if (lowercaseEventKey === "z") {
-        // Don't use ctrl-Z for layout history actions inside the Monaco Editor. It isn't
-        // controlled, and changes inside it don't result in updates to the Redux state. We could
-        // consider making the editor controlled, with a separate "unsaved state".
-        if (inNativeUndoRedoElement(e.target)) {
-          return;
-        }
 
-        // Use e.shiftKey instead of e.key to decide between undo and redo because of capslock.
-        e.stopPropagation();
-        e.preventDefault();
-        if (e.shiftKey) {
-          actions.redoLayoutChange();
-        } else {
-          actions.undoLayoutChange();
-        }
-      } else if (lowercaseEventKey === "s" && openSaveLayoutModal) {
-        e.preventDefault();
-        openSaveLayoutModal();
-      } else if (lowercaseEventKey === "e" && openLayoutModal) {
-        e.preventDefault();
-        openLayoutModal();
-      } else if (lowercaseEventKey === "/") {
-        e.preventDefault();
-        history.push(`/shortcuts${window.location.search}`);
+      // Use e.shiftKey instead of e.key to decide between undo and redo because of capslock.
+      e.stopPropagation();
+      e.preventDefault();
+      if (e.shiftKey) {
+        actions.redoLayoutChange();
+      } else {
+        actions.undoLayoutChange();
       }
-    },
-    [openSaveLayoutModal, openLayoutModal, history, actions]
-  );
+    } else if (lowercaseEventKey === "s" && openSaveLayoutModal) {
+      e.preventDefault();
+      openSaveLayoutModal();
+    } else if (lowercaseEventKey === "e" && openLayoutModal) {
+      e.preventDefault();
+      openLayoutModal();
+    } else if (lowercaseEventKey === "/") {
+      e.preventDefault();
+      history.push(`/shortcuts${window.location.search}`);
+    }
+  }, [openSaveLayoutModal, openLayoutModal, history, actions]);
 
   // Not using KeyListener because we want to preventDefault on [ctrl+z] but not on [z], and we want
   // to handle events when text areas have focus.
